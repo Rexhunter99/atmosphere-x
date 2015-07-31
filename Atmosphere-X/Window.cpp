@@ -5,14 +5,20 @@
 #include "Window.h"
 
 // Helper macro to shorten function pointer calls
-#define _run( f ) if ( f ) \
+#define _run( f ) if ( f != nullptr ) \
 			f
+#define _to_hwnd( h ) reinterpret_cast<HWND>(h)
+
 
 WNDCLASSEX	wcex;
 ATOM		classAtom = 0;
 
+
 void WindowEventResponse( uint32_t message, uint16_t param16, uint32_t param32, const Window * window )
 {
+	if (window == nullptr)
+		return;
+
 	switch (message)
 	{
 	case WM_CREATE:
@@ -30,26 +36,51 @@ void WindowEventResponse( uint32_t message, uint16_t param16, uint32_t param32, 
 				// Recast the generic function pointer to one that takes a bool parameter
 				void (*f)(bool) = reinterpret_cast<void(*)(bool)>(window->_event[Window::WE_SHOW_OR_HIDE]);
 				// Execute the function with the bool parameter
-				f(param16>0);
+				if (f)
+					f(param16>0);
 			}
 		}
 		break;
+
+	case WM_MOVE:
+		if (window->_event[Window::WE_SHOW_OR_HIDE])
+		{
+			// Recast the generic function pointer to one that takes a bool parameter
+			void(*f)(int16_t, int16_t) = reinterpret_cast<void(*)(int16_t, int16_t)>(window->_event[Window::WE_MOVED]);
+			// Execute the function with the bool parameter
+			if (f)
+				f(LOWORD(param32), HIWORD(param32));
+		}
+		break;
+
+	case WM_SIZE:
+		if (window->_event[Window::WE_SHOW_OR_HIDE])
+		{
+			// Recast the generic function pointer to one that takes a bool parameter
+			void(*f)(uint16_t,uint16_t) = reinterpret_cast<void(*)(uint16_t, uint16_t)>(window->_event[Window::WE_RESIZED]);
+			// Execute the function with the bool parameter
+			if (f)
+				f(LOWORD(param32), HIWORD(param32));
+		}
+		break;
+
+	default:
+		return;
 	}
 }
 
 
 LRESULT WINAPI _WinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	HDC hdc;
-	PAINTSTRUCT ps;
 	Window *i = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
 	// -- Catch a CREATE event to prevent nullptr exception
-	if ( msg == WM_CREATE )
+	if ( msg == WM_NCCREATE )
 	{
+		LPCREATESTRUCT cs = (LPCREATESTRUCT)lparam;
 		// -- Assign the lparam (Window instance pointer) to the window
-		SetWindowLongPtr(hwnd, GWLP_USERDATA, lparam );
-		i = reinterpret_cast<Window*>(lparam);
+		SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cs->lpCreateParams );
+		i = reinterpret_cast<Window*>(cs->lpCreateParams);
 	}
 
 	WindowEventResponse( msg, wparam, lparam, i );
@@ -62,12 +93,6 @@ LRESULT WINAPI _WinProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		break;
-
-	case WM_PAINT:
-		hdc = BeginPaint(hwnd, &ps);
-		// TODO: Add any drawing code here...
-		EndPaint(hwnd, &ps);
 		break;
 
 	default:
@@ -91,6 +116,7 @@ void _initWindowClassEx()
 	wcex.hIconSm			= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MYICON_SMALL));
 	wcex.hCursor			= LoadCursor(nullptr, IDC_ARROW);
 	wcex.lpfnWndProc		= _WinProc;
+	wcex.cbWndExtra			= 8;
 	wcex.style				= CS_OWNDC;
 
 	classAtom = RegisterClassEx(&wcex);
@@ -106,7 +132,8 @@ Window::Window(void)
 {
 	this->_valid = false;
 	this->_native_handle = nullptr;
-	ZeroMemory( _event, sizeof(funcptr_t) * WE_MAX_VALUE );
+	ZeroMemory( &this->_event[0], sizeof(funcptr_t) * WE_MAX_VALUE );
+	_event[0] = nullptr;
 }
 
 
@@ -114,7 +141,7 @@ Window::Window(Window && src)
 {
 	this->_valid = src._valid;
 	this->_native_handle = src._native_handle;
-	CopyMemory(this->_event, src._event, sizeof(funcptr_t) * WE_MAX_VALUE);
+	CopyMemory(&this->_event[0], &src._event[0], sizeof(funcptr_t) * WE_MAX_VALUE);
 	SetWindowLongPtr((HWND)this->_native_handle, GWLP_USERDATA, reinterpret_cast<LONG>(this) );
 
 	src._valid = false;
@@ -126,7 +153,7 @@ Window::Window(Window && src)
 Window::Window(const std::tstring & title, int style, int position, uint16_t width, uint16_t height)
 {
 	this->_valid = false;
-	ZeroMemory( _event, sizeof(funcptr_t) * WE_MAX_VALUE );
+	ZeroMemory(&this->_event[0], sizeof(funcptr_t) * WE_MAX_VALUE );
 
 	_initWindowClassEx();
 
@@ -138,7 +165,7 @@ Window::Window(const std::tstring & title, int style, int position, uint16_t wid
 	// Set the styles
 	if ( style == WF_DEFAULT )
 	{
-		winstyle = WS_VISIBLE | WS_BORDER | WS_CAPTION | WS_SYSMENU;
+		winstyle = WS_VISIBLE | WS_BORDER | WS_SIZEBOX | WS_CAPTION | WS_SYSMENU;
 	}
 	else if ( style == WF_STYLE_BORDERLESS )
 	{
@@ -171,13 +198,14 @@ Window::Window(const std::tstring & title, int style, int position, uint16_t wid
 	}
 	else if ( position == WF_POS_CENTER )
 	{
-		winx = GetSystemMetrics(SM_CXSCREEN) / 2;
-		winy = GetSystemMetrics(SM_CYSCREEN) / 2;
+		winx = (GetSystemMetrics(SM_CXSCREEN) / 2) - (width / 2);
+		winy = (GetSystemMetrics(SM_CYSCREEN) / 2) - (height / 2);
 	}
 
 	// Create the window
 	_native_handle = CreateWindowEx(exwinstyle,
-									wcex.lpszClassName, title.c_str(),
+									wcex.lpszClassName,
+									title.c_str(),
 									winstyle,
 									winx, winy, width, height,
 									HWND_DESKTOP,
@@ -186,17 +214,23 @@ Window::Window(const std::tstring & title, int style, int position, uint16_t wid
 	if ( IsWindow((HWND)_native_handle) )
 	{
 		this->_valid = true;
-
-		SetWindowLongPtr((HWND)_native_handle, GWLP_USERDATA, (LONG_PTR)this);
+		this->_native_gc = GetDC(_to_hwnd(_native_handle));
 	}
+	else
+	{
+		THROW_RUNTIME_ERROR( "Failed to create the window!" );
+	}
+
 }
 
 
 Window::~Window(void)
 {
-	if ( _valid )
+	HWND hwnd = _to_hwnd(_native_handle);
+	if ( _valid && IsWindow(hwnd) )
 	{
-		DestroyWindow( (HWND)_native_handle );
+		ReleaseDC(hwnd, (HDC)_native_gc);
+		DestroyWindow(hwnd);
 	}
 }
 
@@ -224,29 +258,48 @@ void Window::processEventsBlocking(void)
 	MSG msg;
 	BOOL result;
 
+	ShowWindow((HWND)_native_handle, SW_SHOW);
+
 	while ((result = GetMessage(&msg, (HWND)_native_handle, 0, 0)))
 	{
 		if ( result == -1 )
 		{
 			// TODO: Throw an exception here
 			DWORD err = GetLastError();
-			throw std::runtime_error(
-				std::string("There was an error when getting the messasge on top of the message queue with code: ") +
-				std::to_string(err)
-				);
+			THROW_RUNTIME_ERROR(std::string("There was an error when getting the messasge on top of the message queue with code: ") + std::to_string(err));
 			break;
 		}
 
-		if ( msg.message == WM_QUIT )
+		if ( msg.hwnd != (HWND)_native_handle )
+			continue;
+
+		if (msg.message == WM_DESTROY)
+			_valid = false;
+		if (msg.message == WM_QUIT)
 			break;
 
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-
-	throw std::invalid_argument("Testing exception");
 }
 
+
+void Window::addEventListener(unsigned event, funcptr_t callback)
+{
+	if (this->_valid)
+	{
+		this->_event[event] = callback;
+	}
+}
+
+
+void Window::setTitle(const std::tstring & title)
+{
+	if (!_valid)
+		return;
+
+	SetWindowText(_to_hwnd(_native_handle), title.c_str());
+}
 
 const void * Window::getNativeHandle() const
 {

@@ -7,33 +7,28 @@
 #include "ExceptionDialog.h"
 
 #include <thread>
+#include <iostream>
 
-
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+void WindowEventShown(bool cmdShow)
+{
+	MessageBoxA(0, "Window shown!", "Message", MB_OK);
+}
 
 void RenderThread(void)
 {
-	Window window;
-	std::tstring title = TEXT("Hello World");
-
-	std::exception te = std::bad_alloc();
-	ExceptionDialog ed1(te );
-
-		ed1.wait();
-		Sleep( 5 * 1000 );
+	//Window window;
+	std::tstring title = TEXT("Carnivores");
 
 	try
 	{
-		window = Window(title, Window::WF_STYLE_DEFAULT, Window::WF_POS_DEFAULT, 900, 600);
-
+		Window window(title, Window::WF_STYLE_DEFAULT, Window::WF_POS_DEFAULT, 900, 600);
+		window.addEventListener(Window::WE_SHOW_OR_HIDE, (funcptr_t)WindowEventShown);
 		window.processEventsBlocking();
 	}
 	catch (std::exception & e)
 	{
 		ExceptionDialog ed(e);
-
 		ed.wait();
-		Sleep( 5 * 1000 );
 	}
 }
 
@@ -57,47 +52,4 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpszCmdLine, in
 	//render.join();
  	
 	return 0; // STATUS: OK
-}
-
-
-/*LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	HDC hdc;
-
-	switch (message)
-	{
-	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-		// Parse the menu selections:
-		switch (wmId)
-		{
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			break;
-		}
-	}
-	return 0;
-}*/
-
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(lParam);
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
-
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
-		}
-		break;
-	}
-	return (INT_PTR)FALSE;
 }

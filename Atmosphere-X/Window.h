@@ -59,12 +59,14 @@ public:
 	void setPosition(int32_t x, int32_t y);
 	void setProperty(unsigned property, bool value);
 	const void *	getNativeHandle() const;
+	const void *	getGraphicContext() const;
 	bool processEvents(void);
 	void processEventsBlocking(void);
 
 protected:
 	bool				_valid;
 	void*				_native_handle;
+	void*				_native_gc;
 	funcptr_t			_event[WE_MAX_VALUE];
 
 	#ifdef _WIN32

@@ -20,6 +20,7 @@
 
 // Include C++ RunTime Header Files
 #include <array>
+#include <exception>
 #include <string>
 #include <vector>
 
@@ -31,6 +32,11 @@ namespace std {
 	typedef string tstring;
 #endif
 };
+
+
+#ifndef THROW_RUNTIME_ERROR
+#define THROW_RUNTIME_ERROR(m) throw std::runtime_error( std::string("Line: ") + std::to_string(__LINE__) + std::string("\r\n") + std::string("File: ") + std::string(__FILE__) + std::string("\r\n") + m )
+#endif
 
 
 // TODO: reference additional headers your program requires here
