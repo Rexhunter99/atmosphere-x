@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Atmosphere-X", "Atmosphere-X\Atmosphere-X.vcxproj", "{6FE83300-5F59-4381-A9CF-274939377F42}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1E713EAF-D038-400D-9744-955BB70AB813} = {1E713EAF-D038-400D-9744-955BB70AB813}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Renderer", "Renderer\Renderer.vcxproj", "{1E713EAF-D038-400D-9744-955BB70AB813}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +26,14 @@ Global
 		{6FE83300-5F59-4381-A9CF-274939377F42}.Release|Win32.Build.0 = Release|Win32
 		{6FE83300-5F59-4381-A9CF-274939377F42}.Release|x64.ActiveCfg = Release|x64
 		{6FE83300-5F59-4381-A9CF-274939377F42}.Release|x64.Build.0 = Release|x64
+		{1E713EAF-D038-400D-9744-955BB70AB813}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1E713EAF-D038-400D-9744-955BB70AB813}.Debug|Win32.Build.0 = Debug|Win32
+		{1E713EAF-D038-400D-9744-955BB70AB813}.Debug|x64.ActiveCfg = Debug|x64
+		{1E713EAF-D038-400D-9744-955BB70AB813}.Debug|x64.Build.0 = Debug|x64
+		{1E713EAF-D038-400D-9744-955BB70AB813}.Release|Win32.ActiveCfg = Release|Win32
+		{1E713EAF-D038-400D-9744-955BB70AB813}.Release|Win32.Build.0 = Release|Win32
+		{1E713EAF-D038-400D-9744-955BB70AB813}.Release|x64.ActiveCfg = Release|x64
+		{1E713EAF-D038-400D-9744-955BB70AB813}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -52,6 +52,8 @@ public:
 	Window(const std::tstring & title, int style, int position, uint16_t width, uint16_t height);
 	~Window(void);
 
+	Window & operator = (Window &);
+
 	void addEventListener(unsigned event, funcptr_t callback);
 	void setTitle(const std::tstring & title);
 	void setSize(const uint16_t & width, const uint16_t & height);

@@ -5,15 +5,18 @@
 #include "Atmosphere-X.h"
 #include "Window.h"
 #include "ExceptionDialog.h"
+#include "IRenderer.h"
+#include "Plugin.h"
 
-#include <thread>
 #include <iostream>
+#include <thread>
+#include <atomic>
 
-void WindowEventShown(bool cmdShow)
-{
-	MessageBoxA(0, "Window shown!", "Message", MB_OK);
-}
 
+std::atomic<Window>		g_main_window;
+std::atomic<Plugin>		g_renderer_plugin;
+
+// Process the UI/UX and Renderer
 void RenderThread(void)
 {
 	//Window window;
@@ -21,8 +24,14 @@ void RenderThread(void)
 
 	try
 	{
+		// Create the main window
 		Window window(title, Window::WF_STYLE_DEFAULT, Window::WF_POS_DEFAULT, 900, 600);
-		window.addEventListener(Window::WE_SHOW_OR_HIDE, (funcptr_t)WindowEventShown);
+
+		// Load the renderer library
+		Plugin plugin_renderer("v_gl2.dll", nullptr);
+		IRenderer *renderer = (IRenderer*)plugin_renderer.getInstance();
+
+		// Begin processing events
 		window.processEventsBlocking();
 	}
 	catch (std::exception & e)
@@ -33,23 +42,17 @@ void RenderThread(void)
 }
 
 
-// Forward declarations of functions included in this code module:
-INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
-
-#ifdef _UNICODE
-//int tmain(int argc, wchar_t **argv)
-int APIENTRY _tWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpszCmdLine, int nCmdShow)
-#else
-//int main(int argc, char **argv)
+#ifdef _WINDOWS
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpszCmdLine, int nCmdShow)
+#elif defined(_LINUX)
+int main(int argc, char **argv)
 #endif
 {
 	// Start a thread that handles the graphics
-	//std::thread render(RenderThread);
-	RenderThread();
+	std::thread render(RenderThread);
 
 	// Wait for the render thread to finish, then join back to the main thread
-	//render.join();
+	render.join();
  	
 	return 0; // STATUS: OK
 }

@@ -132,6 +132,7 @@ Window::Window(void)
 {
 	this->_valid = false;
 	this->_native_handle = nullptr;
+	this->_native_gc = nullptr;
 	ZeroMemory( &this->_event[0], sizeof(funcptr_t) * WE_MAX_VALUE );
 	_event[0] = nullptr;
 }
@@ -141,11 +142,13 @@ Window::Window(Window && src)
 {
 	this->_valid = src._valid;
 	this->_native_handle = src._native_handle;
-	CopyMemory(&this->_event[0], &src._event[0], sizeof(funcptr_t) * WE_MAX_VALUE);
-	SetWindowLongPtr((HWND)this->_native_handle, GWLP_USERDATA, reinterpret_cast<LONG>(this) );
+	this->_native_gc = src._native_gc;
+	CopyMemory(this->_event, src._event, sizeof(funcptr_t) * WE_MAX_VALUE);
+	SetWindowLongPtr((HWND)this->_native_handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this) );
 
 	src._valid = false;
 	src._native_handle = nullptr;
+	src._native_gc = nullptr;
 	ZeroMemory( src._event, sizeof(funcptr_t) * WE_MAX_VALUE );
 }
 
@@ -224,6 +227,23 @@ Window::Window(const std::tstring & title, int style, int position, uint16_t wid
 }
 
 
+Window & Window::operator = (Window & src)
+{
+	this->_valid = src._valid;
+	this->_native_handle = src._native_handle;
+	this->_native_gc = src._native_gc;
+	CopyMemory(this->_event, src._event, sizeof(funcptr_t) * WE_MAX_VALUE);
+	SetWindowLongPtr((HWND)this->_native_handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+	src._valid = false;
+	src._native_handle = nullptr;
+	src._native_gc = nullptr;
+	ZeroMemory(src._event, sizeof(funcptr_t) * WE_MAX_VALUE);
+
+	return *this;
+}
+
+
 Window::~Window(void)
 {
 	HWND hwnd = _to_hwnd(_native_handle);
@@ -258,6 +278,7 @@ void Window::processEventsBlocking(void)
 	MSG msg;
 	BOOL result;
 
+	ShowWindow((HWND)_native_handle, SW_HIDE);
 	ShowWindow((HWND)_native_handle, SW_SHOW);
 
 	while ((result = GetMessage(&msg, (HWND)_native_handle, 0, 0)))
