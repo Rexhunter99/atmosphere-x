@@ -7,6 +7,9 @@
 
 #include "targetver.h"
 
+#include "Global.h"
+#include "Plugin.h"
+
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
 #include <Windows.h>
@@ -38,5 +41,10 @@ namespace std {
 #define THROW_RUNTIME_ERROR(m) throw std::runtime_error( std::string("Line: ") + std::to_string(__LINE__) + std::string("\r\n") + std::string("File: ") + std::string(__FILE__) + std::string("\r\n") + m )
 #endif
 
+#ifdef _DEBUG
+#define DEBUG_NEW_PLACEMENT (_NORMAL_BLOCK, __FILE__, __LINE__)
+#else
+#define DEBUG_NEW_PLACEMENT
+#endif
 
 // TODO: reference additional headers your program requires here

@@ -116,7 +116,6 @@ void _initWindowClassEx()
 	wcex.hIconSm			= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_MYICON_SMALL));
 	wcex.hCursor			= LoadCursor(nullptr, IDC_ARROW);
 	wcex.lpfnWndProc		= _WinProc;
-	wcex.cbWndExtra			= 8;
 	wcex.style				= CS_OWNDC;
 
 	classAtom = RegisterClassEx(&wcex);
@@ -251,6 +250,9 @@ Window::~Window(void)
 	{
 		ReleaseDC(hwnd, (HDC)_native_gc);
 		DestroyWindow(hwnd);
+
+		UnregisterClass(wcex.lpszClassName, wcex.hInstance);
+		classAtom = 0;
 	}
 }
 

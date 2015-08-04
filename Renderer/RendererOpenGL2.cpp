@@ -3,6 +3,14 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <gl/GL.h>
+#include <crtdbg.h>
+
+
+#ifdef _DEBUG
+#define DEBUG_NEW_PLACEMENT (_NORMAL_BLOCK, __FILE__, __LINE__)
+#else
+#define DEBUG_NEW_PLACEMENT
+#endif
 
 
 static RendererGL2 *	global_instance = nullptr;
@@ -21,7 +29,7 @@ typedef struct _initstruct{
 IRenderer * Create(void * data)
 {
 	if (global_instance == nullptr)
-		global_instance = new RendererGL2(data);
+		global_instance = new (_NORMAL_BLOCK, __FILE__, __LINE__) RendererGL2(data);
 	return global_instance;
 }
 

@@ -14,6 +14,22 @@
 
 class Global
 {
+private:
+	Global();
+
+	class _PluginFactory
+	{
+	public:
+
+		void addPlugin(const std::string &, const std::string &, void*);
+		Plugin & getPlugin(const std::string &);
+		void removePlugin(const std::string &);
+		
+	private:
+		std::mutex							mtx;
+		std::map<std::string, Plugin>		plugins;
+	};
+
 public:
 	~Global();
 
@@ -24,7 +40,7 @@ public:
 	}
 	/*
 	// Return reference version of above static method
-	static Global & getGlobal()
+	static Global & getGlobalRef()
 	{
 		static Global g;
 		return g;
@@ -32,11 +48,8 @@ public:
 	*/
 
 	// Member variables
-	std::mutex							plugin_mutex;
-	std::map<std::string, Plugin>		plugins;
+	_PluginFactory PluginFactory;
 
-private:
-	Global();
 };
 
 #endif //__GLOBAL_H__
