@@ -12,27 +12,20 @@
 
 
 Window		g_main_window;
-Plugin		g_renderer_plugin;
 
 // Process the UI/UX and Renderer
 void RenderThread(void)
 {
 	Global *g = Global::getGlobal();
 
-	//Window window;
-	std::tstring title = TEXT("Carnivores");
-
 	try
 	{
 		// Create the main window
-		g_main_window = Window(title, Window::WF_STYLE_DEFAULT, Window::WF_POS_DEFAULT, 900, 600);
+		g_main_window = Window(TEXT("Carnivores"), Window::WF_STYLE_DEFAULT, Window::WF_POS_DEFAULT, 900, 600);
 
 		// Load the renderer library
-		g->plugin_mutex.lock();
-		Plugin p("v_gl2.dll", nullptr);
-		g->plugins.insert(std::make_pair("renderer", p));
-		IRenderer *renderer = (IRenderer*)p.getInstance();
-		g->plugin_mutex.unlock();
+		g->PluginFactory.addPlugin("Renderer", "v_gl2.dll", nullptr);
+		Plugin &plugin_renderer = g->PluginFactory.getPlugin("Renderer");
 
 		// Begin processing events
 		g_main_window.processEventsBlocking();
