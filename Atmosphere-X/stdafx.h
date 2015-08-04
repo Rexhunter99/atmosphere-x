@@ -47,4 +47,22 @@ namespace std {
 #define DEBUG_NEW_PLACEMENT
 #endif
 
+
+std::vector<std::string> split(std::string src, const std::string & delimiter)
+{
+	std::vector<std::string> v;
+
+	size_t pos = 0;
+	std::string token;
+	while ((pos = src.find(delimiter)) != std::string::npos)
+	{
+		token = src.substr(0, pos);
+		v.push_back(token);
+		src.erase(0, pos + delimiter.length());
+	}
+	v.push_back(src);
+
+	return v;
+}
+
 // TODO: reference additional headers your program requires here

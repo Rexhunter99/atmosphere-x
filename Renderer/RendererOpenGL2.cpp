@@ -44,13 +44,11 @@ BOOLEAN WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 		DisableThreadLibraryCalls(hDllHandle);
 
 		global_instance = nullptr;
-		MessageBox(0, "Attaching v_gl2.dll", "v_gl2", 0);
 		break;
 
 	case DLL_PROCESS_DETACH:
 		if (global_instance != nullptr)
 			global_instance->free();
-		MessageBox(0, "Detaching v_gl2.dll", "v_gl2", 0);
 		break;
 	}
 

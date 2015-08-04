@@ -21,7 +21,7 @@ Plugin::Plugin(Plugin && src)
 
 Plugin::Plugin(const std::string & module_name, void * init_data)
 {
-	_module = (intptr_t)LoadLibrary(module_name.c_str());
+	_module = (intptr_t)LoadLibrary(std::string(module_name + ".dll").c_str());
 	_instance = 0;
 
 	if (!_module)

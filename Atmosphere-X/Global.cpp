@@ -30,3 +30,13 @@ Plugin & Global::_PluginFactory::getPlugin(const std::string &name)
 
 	return p->second;
 }
+
+void Global::_PluginFactory::removePlugin(const std::string &name)
+{
+	std::lock_guard<std::mutex> lock(this->mtx);
+
+	auto p = this->plugins.find(name);
+
+	if (p != this->plugins.end())
+		this->plugins.erase(name);
+}

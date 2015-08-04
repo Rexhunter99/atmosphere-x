@@ -3,6 +3,7 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
+#include <array>
 #include <cstdint>
 #include <map>
 #include <mutex>
@@ -48,7 +49,8 @@ public:
 	*/
 
 	// Member variables
-	_PluginFactory PluginFactory;
+	std::vector<std::string>	CommandLine;
+	_PluginFactory				PluginFactory;
 
 };
 
