@@ -4,6 +4,7 @@
 //
 
 #pragma once
+#if defined( _WINDOWS )
 
 #include "targetver.h"
 
@@ -17,12 +18,12 @@
 // C RunTime Header Files
 #include <cstdlib>
 #include <cstdint>
+#include <cstring>
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
 
 // Include C++ RunTime Header Files
-#include <array>
 #include <exception>
 #include <string>
 #include <vector>
@@ -51,3 +52,5 @@ namespace std {
 std::vector<std::string> split(std::string src, const std::string & delimiter);
 
 // TODO: reference additional headers your program requires here
+
+#endif // _WINDOWS

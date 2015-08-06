@@ -156,6 +156,7 @@
     <ClInclude Include="ExceptionDialog.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="IRenderer.h" />
+    <ClInclude Include="JSON.h" />
     <ClInclude Include="Plugin.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -166,6 +167,7 @@
     <ClCompile Include="Atmosphere-X.cpp" />
     <ClCompile Include="ExceptionDialog.cpp" />
     <ClCompile Include="Global.cpp" />
+    <ClCompile Include="JSON.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

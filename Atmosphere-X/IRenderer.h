@@ -11,8 +11,6 @@
 class IRenderer
 {
 public:
-	virtual void setFullscreen(bool) = 0;
-
 	// Base Resource interface for the Renderer class and all the other interfaces
 	class IResource
 	{
@@ -73,12 +71,28 @@ public:
 		virtual ~IFont() = 0;
 	};
 
+	// Font interface for the Renderer class
+	class IMesh :
+		public IResource
+	{
+	public:
+
+	protected:
+		IMesh() : IResource("IMesh") {}
+		virtual ~IMesh() = 0;
+	};
+
 	// Factory interface for the Renderer class
 	class IFactory
 	{
 	protected:
 		std::map<std::string, IResource>	_resources;
 	};
+
+	
+	virtual void setFullscreen(bool) = 0;
+	virtual IMesh * createMesh(const std::string &mesh_file) = 0;
+	virtual IMesh * createMesh() = 0;
 
 protected:
 	virtual

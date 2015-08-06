@@ -7,5 +7,5 @@
 
 #include <WinSDKVer.h>
 // Support XP, Vista, Win 7, Win 8, Win 8.1, Win 10
-#define _WIN32_WINNT 0x0600
+#define _WIN32_WINNT 0x0501
 #include <SDKDDKVer.h>

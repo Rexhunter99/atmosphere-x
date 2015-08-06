@@ -74,7 +74,7 @@ protected:
 	#ifdef _WIN32
 	friend void WindowEventResponse( uint32_t message, uint16_t param16, uint32_t param32, const Window * window );
 	#elif _X11
-	friend void WindowEventResoinse( Event event, const Window * window );
+	friend void WindowEventResponse( Event event, const Window * window );
 	#endif
 
 private:

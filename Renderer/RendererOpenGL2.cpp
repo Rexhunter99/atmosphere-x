@@ -26,11 +26,18 @@ typedef struct _initstruct{
 
 
 // Create an instance of the Renderer class for use in the main engine project
-IRenderer * Create(void * data)
+IRenderer * PluginCreate(void * data)
 {
 	if (global_instance == nullptr)
 		global_instance = new (_NORMAL_BLOCK, __FILE__, __LINE__) RendererGL2(data);
 	return global_instance;
+}
+
+void PluginDelete()
+{
+	if (global_instance)
+		global_instance->free();
+	global_instance = nullptr;
 }
 
 
@@ -47,8 +54,7 @@ BOOLEAN WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved)
 		break;
 
 	case DLL_PROCESS_DETACH:
-		if (global_instance != nullptr)
-			global_instance->free();
+		PluginDelete();
 		break;
 	}
 

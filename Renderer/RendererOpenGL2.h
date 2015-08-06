@@ -40,10 +40,11 @@ private:
 	};
 };
 
-// Create an instance of the derived IRenderer
+// Plugin entrypoints
 extern "C"
 {
-	__declspec(dllexport) IRenderer * Create(void *);
+	__declspec(dllexport) IRenderer * PluginCreate(void *);
+	__declspec(dllexport) void PluginDelete(void);
 }
 
 #endif //__RENDERER_OPENGL2_H__

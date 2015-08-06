@@ -4,8 +4,16 @@
 
 #include "stdafx.h"
 
+#include "IRenderer.h"
 // TODO: reference any additional headers you need in STDAFX.H
 // and not in this file
+
+typedef struct IRenderer::_initstruct {
+	size_t		uiSize;			///<The size of this struct, this verifies the validity of the struct
+	HWND		hWindow;		///<Win32 & COM Window Handle
+	HDC			hDC;			///<Windows GDI Device Context
+	intptr_t	ptrData;		///<Custom data pointer
+} IRenderer::initstruct_t;
 
 std::vector<std::string> split(std::string src, const std::string & delimiter)
 {
